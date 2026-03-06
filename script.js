@@ -618,110 +618,31 @@ function App() {
                   </button>
                 </div>
               </div>
-
-              {/* 思念角色選擇 */}
               <div>
                 <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念角色</label>
                 <div className="grid grid-cols-3 gap-2">
                   {CHARACTERS.map(c => (
-                    <button 
-                      key={c.id} 
-                      onClick={() => setSelectedChar(c.id)}
-                      className={`py-3 rounded-xl border text-[10px] font-black transition-all ${selectedChar === c.id ? 'bg-white/10 border-white/40 text-white shadow-lg' : 'bg-white/5 border-transparent text-slate-400'}`}
-                    >
-                      {c.name}
-                    </button>
+                    <button key={c.id} onClick={() => setSelectedChar(c.id)} className={`py-3 rounded-xl border text-[10px] font-black transition-all ${selectedChar === c.id ? 'bg-white/10 border-white/40 text-white shadow-lg' : 'bg-white/5 border-transparent text-slate-400'}`}>{c.name}</button>
                   ))}
                 </div>
               </div>
-
-              {/* 活動與屬性 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念日期</label>
-                  <input 
-                    type="date" 
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 outline-none focus:border-indigo-500/50"
-                  />
+              <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動名稱</label><input type="text" list="existing-events" placeholder="例：他的邀約" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /><datalist id="existing-events">{eventOptions.filter(opt => opt !== 'all').map(opt => <option key={opt} value={opt} />)}</datalist></div>
+              <div className="flex gap-4 items-end">
+                <div className="w-1/3 flex-shrink-0"><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動日期</label><input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-[11px] text-slate-200 focus:outline-none [color-scheme:dark]" /></div>
+                <div className="flex-1 flex flex-col items-center"><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest text-center">類型</label><div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 w-fit"><button onClick={() => setCardType('sun')} className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 text-[10px] font-black ${cardType === 'sun' ? 'bg-amber-500 text-black shadow-lg' : 'text-slate-500'}`}><Sun size={12} /> 日卡</button><button onClick={() => setCardType('moon')} className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 text-[10px] font-black ${cardType === 'moon' ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-500'}`}><Moon size={12} /> 月卡</button></div></div>
+              </div>
+              <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念全名</label><input type="text" placeholder="例如：沈星回．心緒捕捉" value={cardName} onChange={(e) => setCardName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
+              {recordType === 'pull' && activeTab !== 'standard' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-rose-500/5 rounded-2xl border border-rose-500/20"><div><span className="text-[12px] font-black text-rose-300 block">歪卡？</span></div><button onClick={() => { setIsLost5050(!isLost5050); if(!isLost5050) setIsNotTarget(false); }} className={`px-4 py-1.5 rounded-full text-[11px] font-black ${isLost5050 ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}>{isLost5050 ? '是的' : '沒歪'}</button></div>
+                  {subPoolType === 'multi' && !isLost5050 && (<div className="flex items-center justify-between p-4 bg-sky-500/5 rounded-2xl border border-sky-500/20"><div><span className="text-[12px] font-black text-sky-400 block">非定向限定卡？</span></div><button onClick={() => setIsNotTarget(!isNotTarget)} className={`px-4 py-1.5 rounded-full text-[11px] font-black ${isNotTarget ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-400'}`}>{isNotTarget ? '是的' : '定向中'}</button></div>)}
                 </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念星級</label>
-                  <div className="flex p-1 bg-white/5 rounded-xl">
-                    <button onClick={() => setCardType('sun')} className={`flex-1 py-2 rounded-lg flex justify-center ${cardType === 'sun' ? 'bg-amber-500/20 text-amber-500' : 'text-slate-600'}`}><Sun size={14} /></button>
-                    <button onClick={() => setCardType('moon')} className={`flex-1 py-2 rounded-lg flex justify-center ${cardType === 'moon' ? 'bg-indigo-500/20 text-indigo-400' : 'text-slate-600'}`}><Moon size={14} /></button>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動名稱</label>
-                <input 
-                  type="text" 
-                  placeholder="例：他的邀約"
-                  value={eventName}
-                  onChange={(e) => setEventName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 outline-none focus:border-indigo-500/50"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念全名</label>
-                <input 
-                  type="text" 
-                  placeholder="例如：沈星回．心緒捕捉"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 outline-none focus:border-indigo-500/50"
-                />
-              </div>
-
-              {/* 抽數填寫區 */}
+              )}
               <div className="pt-4 border-t border-white/5 space-y-4">
-                {recordType === 'pull' ? (
-                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={isLost5050} onChange={(e) => setIsLost5050(e.target.checked)} className="w-4 h-4 rounded border-white/10 bg-black text-indigo-600" />
-                      <label className="text-[11px] font-black text-slate-400">是否歪了 (小保底失敗)</label>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-black uppercase mb-3 block tracking-widest text-center">選擇填寫方式</label>
-                    <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-xl">
-                       <button onClick={() => setInputMode('cost')} className={`py-2 rounded-lg text-[10px] font-black ${inputMode === 'cost' ? 'bg-white/10 text-white' : 'text-slate-500'}`}>花費抽數</button>
-                       <button onClick={() => setInputMode('remain')} className={`py-2 rounded-lg text-[10px] font-black ${inputMode === 'remain' ? 'bg-white/10 text-white' : 'text-slate-500'}`}>剩餘抽數</button>
-                    </div>
-                  </div>
-                )}
-                
-                <div>
-                  <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">
-                    {inputMode === 'cost' ? '花費抽數' : '剩餘抽數'}
-                  </label>
-                  <input 
-                    type="number" 
-                    value={inputMode === 'cost' ? pullCountInput : remainingPullsInput}
-                    onChange={(e) => inputMode === 'cost' ? setPullCountInput(e.target.value) : setRemainingPullsInput(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none focus:border-indigo-500/50"
-                  />
-                </div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-3 block tracking-widest text-center">選擇填寫方式</label><div className="relative"><select value={inputMode} onChange={(e) => setInputMode(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] font-black text-slate-200 outline-none appearance-none"><option value="cost">花費抽數</option><option value="remain">剩餘抽數</option></select></div></div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">{inputMode === 'cost' ? '花費抽數' : '剩餘抽數'}</label><input type="number" value={inputMode === 'cost' ? pullCountInput : remainingPullsInput} onChange={(e) => inputMode === 'cost' ? setPullCountInput(e.target.value) : setRemainingPullsInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
               </div>
-
-              <button 
-                onClick={submitRecord}
-                className="w-full py-5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-[0_10px_20px_rgba(79,70,229,0.3)] active:scale-95 transition-all"
-              >
-                {editingId ? '更新紀錄' : '確認登錄'}
-              </button>
-              
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="w-full py-2 text-[10px] font-black text-slate-600 uppercase tracking-widest"
-              >
-                取消
-              </button>
+              <button onClick={submitRecord} className="w-full py-5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl active:scale-95">確認登錄</button>
             </div>
           </div>
         </div>
@@ -730,6 +651,5 @@ function App() {
   );
 }
 
-// 將 App 渲染到 DOM
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
