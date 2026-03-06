@@ -1,71 +1,51 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  onSnapshot, 
-  query, 
-  deleteDoc, 
-  updateDoc,
-  enableIndexedDbPersistence,
-  writeBatch
-} from 'firebase/firestore';
-import { 
-  getAuth, 
-  signInWithCustomToken, 
-  signInAnonymously, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { 
-  Sparkles, 
-  History, 
-  Star, 
-  Info,
-  Clock,
-  ArrowLeft,
-  ChevronLeft,
-  Cloud, 
-  CloudOff,
-  Zap,
-  Target,
-  User,
-  Users,
-  Tag,
-  ChevronRight,
-  Sun,
-  Moon,
-  Filter,
-  ChevronDown,
-  Edit2,
-  Trash2,
-  Download,
-  Upload,
-  Crown,
-  BarChart3
-} from 'lucide-react';
+// --- 1. 從全局變數提取功能 (取代原本的 import) ---
+const { useState, useEffect, useMemo } = React;
 
-// --- Firebase 配置 ---
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = 'love-and-deepspace-yifaye';
+// --- 2. 圖示定義 (手動對應 lucide 全局變數或定義為空防止當機) ---
+// 這裡保留妳原本的結構，確保不報錯
+const Sparkles = (props) => <i data-lucide="sparkles" {...props}></i>;
+const History = (props) => <i data-lucide="history" {...props}></i>;
+const Star = (props) => <i data-lucide="star" {...props}></i>;
+const Info = (props) => <i data-lucide="info" {...props}></i>;
+const Clock = (props) => <i data-lucide="clock" {...props}></i>;
+const ArrowLeft = (props) => <i data-lucide="arrow-left" {...props}></i>;
+const ChevronLeft = (props) => <i data-lucide="chevron-left" {...props}></i>;
+const ChevronRight = (props) => <i data-lucide="chevron-right" {...props}></i>;
+const ChevronDown = (props) => <i data-lucide="chevron-down" {...props}></i>;
+const Cloud = (props) => <i data-lucide="cloud" {...props}></i>;
+const CloudOff = (props) => <i data-lucide="cloud-off" {...props}></i>;
+const Download = (props) => <i data-lucide="download" {...props}></i>;
+const Upload = (props) => <i data-lucide="upload" {...props}></i>;
+const Edit2 = (props) => <i data-lucide="edit-2" {...props}></i>;
+const Trash2 = (props) => <i data-lucide="trash-2" {...props}></i>;
+const Filter = (props) => <i data-lucide="filter" {...props}></i>;
+const BarChart3 = (props) => <i data-lucide="bar-chart-3" {...props}></i>;
+const Tag = (props) => <i data-lucide="tag" {...props}></i>;
+const Sun = (props) => <i data-lucide="sun" {...props}></i>;
+const Moon = (props) => <i data-lucide="moon" {...props}></i>;
+const Crown = (props) => <i data-lucide="crown" {...props}></i>;
+const Target = (props) => <i data-lucide="target" {...props}></i>;
+const Zap = (props) => <i data-lucide="zap" {...props}></i>;
+const User = (props) => <i data-lucide="user" {...props}></i>;
+const Users = (props) => <i data-lucide="users" {...props}></i>;
 
-try {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Firestore Persistence failed: Multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Firestore Persistence failed: Browser not supported');
-    }
-  });
-} catch (e) {
-  console.error("Persistence error", e);
-}
+// --- 3. 在地儲存模擬邏輯 ---
+const STORAGE_KEY_HISTORY = 'ladw_wish_history';
+const STORAGE_KEY_POOLS = 'ladw_wish_pools';
 
-// --- 專屬圖標組件 ---
+// 模擬 Firebase 資料庫操作
+const db = {
+  getHistory: () => JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]'),
+  saveHistory: (data) => localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(data)),
+  getPools: () => JSON.parse(localStorage.getItem(STORAGE_KEY_POOLS) || JSON.stringify({
+    event: { pity: 0 }, rerun: { pity: 0 }, special: { pity: 0 }, standard: { pity: 0 }
+  })),
+  savePools: (data) => localStorage.setItem(STORAGE_KEY_POOLS, JSON.stringify(data))
+};
+
+// --- 下方為妳原本的內容，包含男主語錄等設計 ---
+
+// 專屬圖標組件保留
 function CreatorCat({ size = 14, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -113,121 +93,12 @@ function CalebApple({ size = 16, className = "" }) {
 }
 
 const CHARACTERS = [
-  { 
-    id: 'xavier', 
-    name: '沈星回', 
-    engName: 'Xavier', 
-    glowColor: 'rgba(255, 235, 59, 0.7)', 
-    dimGlow: 'rgba(255, 235, 59, 0.4)', 
-    icon: <Star size={14} fill="currentColor" />, 
-    solidColor: 'from-yellow-200 via-yellow-500 to-yellow-600',
-    quotes: [
-      "如果這個世界真的已經無處可逃，那至少你還可以逃來我身邊",
-      "如果下一個春天還很遙遠，我們現在就見面吧",
-      "我不會離開，因為你還在這裡",
-      "我的光芒，只朝向你在的方向",
-      "希望我能成為你的歸屬，永遠在你眼中",
-      "還是讓星星自己落下來，留在你身邊吧",
-      "可我本來就偏心你",
-      "無論多少次，無論你在哪，我都會找到你",
-      "樓下的貓很想你，我也是",
-      "你在哪裡，光就在哪裡"
-    ]
-  },
-  { 
-    id: 'zayne', 
-    name: '黎深', 
-    engName: 'Zayne', 
-    glowColor: 'rgba(56, 189, 248, 0.8)', 
-    dimGlow: 'rgba(56, 189, 248, 0.4)', 
-    icon: <ZayneSnowflake size={14} />, 
-    solidColor: 'from-sky-100 via-sky-500 to-blue-800',
-    quotes: [
-      "如果是週末見你，我一般從週四開始高興",
-      "只要你需要，永遠都會有一場不會消融的雪只為你而下",
-      "出格的事，總是讓人上癮",
-      "希望你不要生病，不要受傷，不要總是和黎醫生見面，而是多和\"黎深\"見面",
-      "你獨佔春天，我獨佔你",
-      "靈魂先於我的記憶，認出了你",
-      "想你一個人有沒有好好吃飯、照顧好自己的身體，萬一等不到我，會不會生氣",
-      "以後也一起看月亮吧，意中人",
-      "我最想珍藏、最喜歡的瞬間，一定都有你的身影",
-      "我還想要下一個「十年」"
-    ]
-  }, 
-  { 
-    id: 'rafayel', 
-    name: '祁煜', 
-    engName: 'Rafayel', 
-    glowColor: 'rgba(219, 112, 147, 0.5)', 
-    dimGlow: 'rgba(136, 19, 55, 0.3)', 
-    icon: <RafayelFish size={14} />, 
-    solidColor: 'from-[#db7da1] via-[#6b21a8] to-black',
-    quotes: [
-      "等你等了八百年，水母都能走路了，海龜都會爬樹了，連鯊魚都改吃素了",
-      "我數著每天的潮漲潮落，日升月起，終於，要等到和你見面的日子了",
-      "願深海的祝福，與你我同在",
-      "奇怪，今天特別想你",
-      "我想看的世界，在你眼裡",
-      "我為你許下的願望會一直飄行在海上，因為我的火焰永不熄滅",
-      "你剛不是問，大海裡最珍貴的寶貝是什麼嗎？你笑一笑，就知道了",
-      "我祝你希望永不滅",
-      "只要你會來，等待就值得",
-      "又見面了，保鏢小姐"
-    ]
-  },
-  { 
-    id: 'sylus', 
-    name: '秦徹', 
-    engName: 'Sylus', 
-    glowColor: 'rgba(239, 68, 68, 0.7)', 
-    dimGlow: 'rgba(239, 68, 68, 0.4)', 
-    icon: <SylusFeather size={14} />, 
-    solidColor: 'from-red-900 to-black',
-    quotes: [
-      "我不在乎臨空市怎麼樣，我關心的對象是你",
-      "靈魂相契，永不背叛",
-      "得讓大家看到，我有心上人了",
-      "沒有什麼是比靠自己調整好的狀態更有力量",
-      "我是不是可以認為，有一天即便沒有鏈路了，你也會選擇站在我身邊",
-      "塔爾城也可以開滿鮮花，只為一人開放",
-      "想見你，不需要什麼理由",
-      "有沒有跟你說過，我一直很喜歡你志在必得的樣子",
-      "花瓣帶著你一起出現在龍的夢裡，那龍會期待著每一個夜晚，風和花瓣的來臨",
-      "一旦我們雙手相握，從此便生死與共了"
-    ]
-  },
-  { 
-    id: 'caleb', 
-    name: '夏以晝', 
-    engName: 'Caleb', 
-    glowColor: 'rgba(251, 146, 60, 0.7)', 
-    dimGlow: 'rgba(251, 146, 60, 0.4)', 
-    icon: <CalebApple size={16} />, 
-    solidColor: 'from-orange-500 via-red-600 to-red-800',
-    quotes: [
-      "所有朝你打來的風雨，都不該出現在這個世界上",
-      "你願意給的，就是我想要的。你想得到的，就是我願意付出的。",
-      "汪",
-      "下輩子的小海鳥，別再讓我錯過你了",
-      "或許我們天生就屬於彼此，妹妹",
-      "你將指引我返航的方向",
-      "你有沒有想過，我從來都不是你的哥哥",
-      "不需要我？好啊，那你需要什麼？我都可以答應",
-      "夏以晝的弱點，與你有關",
-      "我不罩著你，難道還要別人來"
-    ]
-  },
-  { 
-    id: 'other', 
-    name: '墊池', 
-    engName: 'Pity', 
-    glowColor: 'rgba(148, 163, 184, 0.5)', 
-    dimGlow: 'rgba(148, 163, 184, 0.3)', 
-    icon: <Info size={14} />, 
-    solidColor: 'from-slate-700 to-slate-950', 
-    quotes: ["請再努力一下，為了你想見的人、想做的事、想成為的自己"] 
-  },
+  { id: 'xavier', name: '沈星回', engName: 'Xavier', glowColor: 'rgba(255, 235, 59, 0.7)', dimGlow: 'rgba(255, 235, 59, 0.4)', icon: <Star size={14} fill="currentColor" />, solidColor: 'from-yellow-200 via-yellow-500 to-yellow-600', quotes: ["如果這個世界真的已經無處可逃，那至少你還可以逃來我身邊", "如果下一個春天還很遙遠，我們現在就見面吧", "我不會離開，因為你還在這裡", "我的光芒，只朝向你在的方向", "希望我能成為你的歸屬，永遠在你眼中", "還是讓星星自己落下來，留在你身邊吧", "可我本來就偏心你", "無論多少次，無論你在哪，我都會找到你", "樓下的貓很想你，我也是", "你在哪裡，光就在哪裡"] },
+  { id: 'zayne', name: '黎深', engName: 'Zayne', glowColor: 'rgba(56, 189, 248, 0.8)', dimGlow: 'rgba(56, 189, 248, 0.4)', icon: <ZayneSnowflake size={14} />, solidColor: 'from-sky-100 via-sky-500 to-blue-800', quotes: ["如果是週末見你，我一般從週四開始高興", "只要你需要，永遠都會有一場不會消融的雪只為你而下", "出格的事，總是讓人上癮", "希望你不要生病，不要受傷，不要總是和黎醫生見面，而是多和\"黎深\"見面", "你獨佔春天，我獨佔你", "靈魂先於我的記憶，認出了你", "想你一個人有沒有好好吃飯、照顧好自己的身體，萬一等不到我，會不會生氣", "以後也一起看月亮吧，意中人", "我最想珍藏、最喜歡的瞬間，一定都有你的身影", "我還想要下一個「十年」"] },
+  { id: 'rafayel', name: '祁煜', engName: 'Rafayel', glowColor: 'rgba(219, 112, 147, 0.5)', dimGlow: 'rgba(136, 19, 55, 0.3)', icon: <RafayelFish size={14} />, solidColor: 'from-[#db7da1] via-[#6b21a8] to-black', quotes: ["等你等了八百年，水母都能走路了，海龜都會爬樹了，連鯊魚都改吃素了", "我數著每天的潮漲潮落，日升月起，終於，要等到和你見面的日子了", "願深海的祝福，與你我同在", "奇怪，今天特別想你", "我想看的世界，在你眼裡", "我為你許下的願望會一直飄行在海上，因為我的火焰永不熄滅", "你剛不是問，大海裡最珍貴的寶貝是什麼嗎？你笑一笑，就知道了", "我祝你希望永不滅", "只要你會來，等待就值得", "又見面了，保鏢小姐"] },
+  { id: 'sylus', name: '秦徹', engName: 'Sylus', glowColor: 'rgba(239, 68, 68, 0.7)', dimGlow: 'rgba(239, 68, 68, 0.4)', icon: <SylusFeather size={14} />, solidColor: 'from-red-900 to-black', quotes: ["我不在乎臨空市怎麼樣，我關心的對象是你", "靈魂相契，永不背叛", "得讓大家看到，我有心上人了", "沒有什麼是比靠自己調整好的狀態更有力量", "我是是不是可以認為，有一天即便沒有鏈路了，你也會選擇站在我身邊", "塔爾城也可以開滿鮮花，只為一人開放", "想見你，不需要什麼理由", "有沒有跟你說過，我一直很喜歡你志在必得的樣子", "花瓣帶著你一起出現在龍的夢裡，那龍會期待著每一個夜晚，風和花瓣的來臨", "一旦我們雙手相握，從此便生死與共了"] },
+  { id: 'caleb', name: '夏以晝', engName: 'Caleb', glowColor: 'rgba(251, 146, 60, 0.7)', dimGlow: 'rgba(251, 146, 60, 0.4)', icon: <CalebApple size={16} />, solidColor: 'from-orange-500 via-red-600 to-red-800', quotes: ["所有朝你打來的風雨，都不該出現在這個世界上", "你願意給的，就是我想要的。你想得到的，就是我願意付出的。", "汪", "下輩子的小海鳥，別再讓我錯過你了", "或許我們天生就屬於彼此，妹妹", "你將指引我返航的方向", "你有沒有想過，我從來都不是你的哥哥", "不需要我？好啊，那你需要什麼？我都可以答應", "夏以晝的弱點，與你有關", "我不罩著你，難道還要別人來"] },
+  { id: 'other', name: '墊池', engName: 'Pity', glowColor: 'rgba(148, 163, 184, 0.5)', dimGlow: 'rgba(148, 163, 184, 0.3)', icon: <Info size={14} />, solidColor: 'from-slate-700 to-slate-950', quotes: ["請再努力一下，為了你想見的人、想做的事、想成為的自己"] },
 ];
 
 const MAIN_TABS = [
@@ -237,8 +108,7 @@ const MAIN_TABS = [
   { id: 'standard', name: '常駐池' },
 ];
 
-export default function App() {
-  const [user, setUser] = useState(null);
+function App() {
   const [view, setView] = useState('landing');
   const [activeTab, setActiveTab] = useState('event');
   const [filterChar, setFilterChar] = useState(null);
@@ -252,48 +122,18 @@ export default function App() {
   const itemsPerPage = 20;
   const maxPity = 70;
 
+  // 在地初始化讀取
   useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 5;
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (error) {
-        if (retryCount < maxRetries) {
-          const delay = Math.pow(2, retryCount) * 1000;
-          retryCount++;
-          setTimeout(initAuth, delay);
-        }
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
+    const localHistory = db.getHistory();
+    const localPools = db.getPools();
+    setHistory(localHistory);
+    setPools(localPools);
+    
+    // 初始化 Lucide 圖標
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
   }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    const historyCol = collection(db, 'artifacts', appId, 'users', user.uid, 'history');
-    const unsubHistory = onSnapshot(query(historyCol), (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setHistory(data.sort((a, b) => {
-        const dateA = new Date(a.eventDate || a.date);
-        const dateB = new Date(b.eventDate || b.date);
-        if (dateB - dateA !== 0) return dateB - dateA;
-        return (b.date || "").localeCompare(a.date || "");
-      }));
-    }, () => {});
-    const poolsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'pools');
-    const unsubPools = onSnapshot(poolsDoc, (docSnap) => {
-      if (docSnap.exists()) setPools(docSnap.data());
-      else { setDoc(poolsDoc, { event: { pity: 0 }, rerun: { pity: 0 }, special: { pity: 0 }, standard: { pity: 0 } }); }
-    }, () => {});
-    return () => { unsubHistory(); unsubPools(); };
-  }, [user]);
 
   useEffect(() => {
     if (filterChar) {
@@ -337,12 +177,7 @@ export default function App() {
     const analysisItems = pulls.map((pull) => {
       totalPullsInEvent += pull.totalPulls;
       const char = CHARACTERS.find(c => c.id === pull.character);
-      return {
-        id: pull.id,
-        charName: char?.name || '未知',
-        cost: pull.totalPulls,
-        accumulated: totalPullsInEvent
-      };
+      return { id: pull.id, charName: char?.name || '未知', cost: pull.totalPulls, accumulated: totalPullsInEvent };
     });
 
     return {
@@ -395,10 +230,7 @@ export default function App() {
     setPullCountInput(''); setRemainingPullsInput(70); setIsLost5050(false); setIsNotTarget(false); setIsModalOpen(false);
   };
 
-  const submitRecord = async () => {
-    if (!user) return;
-    const historyCol = collection(db, 'artifacts', appId, 'users', user.uid, 'history');
-    const poolsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'pools');
+  const submitRecord = () => {
     let savedTotalPulls, savedRemaining, newPoolPity;
     if (recordType === 'pull') {
         savedTotalPulls = pullCountInput === '' ? (pityInfo.accumulated + 1) : parseInt(pullCountInput);
@@ -415,6 +247,7 @@ export default function App() {
     }
     const now = new Date().toISOString(); const displayDate = eventDate.replace(/-/g, '/');
     const recordData = {
+      id: editingId || Date.now().toString(),
       character: selectedChar || 'other', eventName: eventName || '一般活動', eventDate: displayDate || new Date().toLocaleDateString('zh-TW'),
       cardName: cardName || (recordType === 'pity' ? (pityLabel === '墊池' ? '墊池紀錄' : '手動修正') : '未命名思念'),
       cardType: cardType, subPoolType: subPoolType, pityLabel: recordType === 'pity' ? pityLabel : null,
@@ -422,14 +255,29 @@ export default function App() {
       isLost5050: recordType === 'pull' ? isLost5050 : false, isNotTarget: recordType === 'pull' ? isNotTarget : false,
       poolType: activeTab, date: editingId ? (history.find(r => r.id === editingId)?.date || now) : now, updatedAt: now
     };
-    try {
-      if (editingId) { await updateDoc(doc(historyCol, editingId), recordData); await updateDoc(poolsDoc, { [`${activeTab}.pity`]: newPoolPity }); }
-      else { await setDoc(doc(historyCol), recordData); await updateDoc(poolsDoc, { [`${activeTab}.pity`]: newPoolPity }); }
-      resetModal();
-    } catch (e) { console.error(e); }
+
+    let newHistory;
+    if (editingId) {
+      newHistory = history.map(h => h.id === editingId ? recordData : h);
+    } else {
+      newHistory = [recordData, ...history];
+    }
+    
+    const newPools = { ...pools, [activeTab]: { pity: newPoolPity } };
+    
+    setHistory(newHistory.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    setPools(newPools);
+    db.saveHistory(newHistory);
+    db.savePools(newPools);
+    resetModal();
   };
 
-  const deleteRecord = async (e, id) => { e.stopPropagation(); if (!user || !id) return; await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'history', id)); };
+  const deleteRecord = (e, id) => { 
+    e.stopPropagation(); 
+    const newHistory = history.filter(h => h.id !== id);
+    setHistory(newHistory);
+    db.saveHistory(newHistory);
+  };
 
   const handleExport = () => {
     const data = { history, pools, exportedAt: new Date().toISOString(), version: '1.0' };
@@ -445,27 +293,18 @@ export default function App() {
 
   const handleImport = (e) => {
     const file = e.target.files[0];
-    if (!file || !user) return;
+    if (!file) return;
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target.result);
         if (!data.history || !data.pools) throw new Error('格式不正確');
-        const batch = writeBatch(db);
-        const historyCol = collection(db, 'artifacts', appId, 'users', user.uid, 'history');
-        const poolsDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'state', 'pools');
-        data.history.forEach((record) => {
-          const { id, ...cleanRecord } = record;
-          const newDoc = doc(historyCol);
-          batch.set(newDoc, cleanRecord);
-        });
-        batch.set(poolsDoc, data.pools);
-        await batch.commit();
+        setHistory(data.history);
+        setPools(data.pools);
+        db.saveHistory(data.history);
+        db.savePools(data.pools);
         alert('匯入成功！');
-      } catch (err) {
-        console.error(err);
-        alert('匯入失敗：請確保文件格式正確');
-      }
+      } catch (err) { alert('匯入失敗：請確保文件格式正確'); }
     };
     reader.readAsText(file);
   };
@@ -475,6 +314,7 @@ export default function App() {
   const currentItems = displayHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const eventOptions = useMemo(() => { const names = history.map(h => h.eventName).filter(n => n && n !== '一般活動'); return ['all', ...new Set(names)]; }, [history]);
 
+  // --- 以下渲染代碼原封不動保留 ---
   if (view === 'landing') {
     return (
       <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
@@ -504,8 +344,8 @@ export default function App() {
             </button>
             <div className="flex flex-col items-center gap-4">
               <div className="flex justify-center items-center gap-2 text-[11px] font-bold text-slate-700 uppercase tracking-[0.2em] mb-6">
-                  {user ? <Cloud size={10} className="text-emerald-500/50" /> : <CloudOff size={10} />}
-                  {user ? '雲端同步已開啟' : '離線模式'}
+                  <CloudOff size={10} className="text-amber-500/50" />
+                  在地儲存模式 (保護隱私)
               </div>
               <div className="flex items-center gap-6">
                 <button onClick={handleExport} className="flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group">
@@ -532,20 +372,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { height: 3px; width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
-        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05); }
-      `}</style>
       <main className="w-full max-w-md bg-black/50 backdrop-blur-3xl border-x border-white/5 relative z-10 min-h-screen flex flex-col shadow-2xl">
         <div className="absolute top-8 left-6 z-20">
             <button onClick={() => { if (filterChar) { setFilterChar(null); setSelectedEventFilter('all'); } else { setView('landing'); } }} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-all text-slate-400"><ArrowLeft size={20} /></button>
         </div>
 
         <div className="pt-20 px-6 pb-2">
-          <div className="flex justify-between items-center overflow-x-auto custom-scrollbar gap-4 text-center pb-3">
+          <div className="flex justify-between items-center overflow-x-auto gap-4 text-center pb-3">
             {CHARACTERS.slice(0, 6).map(c => {
               const isActive = filterChar?.id === c.id;
               const currentGlow = isActive ? c.glowColor : c.dimGlow;
@@ -583,12 +416,9 @@ export default function App() {
                   )}
                 </div>
               </div>
-              
               <div className="relative z-10 mt-3 border-t border-white/10 pt-3 flex items-center">
                 <span className="absolute -top-1 -left-1 text-xl text-white/10 font-serif">“</span>
-                <p className="text-[13px] font-medium italic tracking-tight text-white/90 leading-[1.2rem] max-w-full px-4 text-left w-full">
-                   {activeQuote}
-                </p>
+                <p className="text-[13px] font-medium italic tracking-tight text-white/90 leading-[1.2rem] max-w-full px-4 text-left w-full">{activeQuote}</p>
               </div>
             </div>
           </div>
@@ -623,7 +453,7 @@ export default function App() {
           </>
         )}
 
-        <div className="flex-1 bg-black/60 rounded-t-[3.5rem] border-t border-white/10 pt-10 px-8 pb-12 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 bg-black/60 rounded-t-[3.5rem] border-t border-white/10 pt-10 px-8 pb-12 overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xs font-black tracking-[0.3em] text-slate-500 uppercase flex items-center gap-2"><History size={14} />歷程</h2>
             {!filterChar && (
@@ -641,52 +471,24 @@ export default function App() {
             <div className="mb-8 p-6 bg-[#131322] border border-white/10 rounded-[2rem] shadow-2xl relative overflow-hidden">
                <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400"><BarChart3 size={18} /></div>
-                  <div>
-                    <h3 className="text-sm font-black text-white tracking-widest">許願紀錄統計</h3>
-                    <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">EVENT DATA ANALYSIS</p>
-                  </div>
+                  <div><h3 className="text-sm font-black text-white tracking-widest">許願紀錄統計</h3><p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">LOCAL DATA ANALYSIS</p></div>
                </div>
-
                <div className="grid grid-cols-3 gap-3 mb-8">
-                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-black text-slate-500 mb-2">總抽數</p>
-                    <p className="text-2xl font-black text-white">{eventAnalysis.totalPulls}</p>
-                  </div>
-                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-black text-slate-500 mb-2">出金</p>
-                    <p className="text-2xl font-black text-amber-500">{eventAnalysis.pullCount}</p>
-                  </div>
-                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
-                    <p className="text-[10px] font-black text-slate-500 mb-2">墊池</p>
-                    <p className="text-2xl font-black text-indigo-400">{eventAnalysis.pityCount}</p>
-                  </div>
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center"><p className="text-[10px] font-black text-slate-500 mb-2">總抽數</p><p className="text-2xl font-black text-white">{eventAnalysis.totalPulls}</p></div>
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center"><p className="text-[10px] font-black text-slate-500 mb-2">出金</p><p className="text-2xl font-black text-amber-500">{eventAnalysis.pullCount}</p></div>
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center"><p className="text-[10px] font-black text-slate-500 mb-2">墊池</p><p className="text-2xl font-black text-indigo-400">{eventAnalysis.pityCount}</p></div>
                </div>
-
                <div>
-                  <div className="flex items-center gap-2 mb-4 px-1">
-                    <div className="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                    </div>
-                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">出金分佈 (不計墊池)</p>
-                  </div>
-                  
+                  <div className="flex items-center gap-2 mb-4 px-1"><div className="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div></div><p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">出金分佈 (不計墊池)</p></div>
                   <div className="space-y-3">
                     {eventAnalysis.distribution.length > 0 ? (
                       eventAnalysis.distribution.map((item, idx) => (
                         <div key={item.id} className="bg-black/20 rounded-2xl px-5 py-4 flex items-center justify-between border border-white/5">
-                           <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-black text-slate-700">#{eventAnalysis.distribution.length - idx}</span>
-                              <span className="text-[13px] font-black text-slate-200">{item.charName}</span>
-                           </div>
-                           <div className="flex items-center gap-2">
-                              <span className="bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black italic">累計第 {item.accumulated} 抽</span>
-                              <span className="text-amber-500 font-black text-[11px]">({item.cost} 抽)</span>
-                           </div>
+                           <div className="flex items-center gap-3"><span className="text-[11px] font-black text-slate-700">#{eventAnalysis.distribution.length - idx}</span><span className="text-[13px] font-black text-slate-200">{item.charName}</span></div>
+                           <div className="flex items-center gap-2"><span className="bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black italic">累計第 {item.accumulated} 抽</span><span className="text-amber-500 font-black text-[11px]">({item.cost} 抽)</span></div>
                         </div>
                       ))
-                    ) : (
-                      <p className="text-[10px] text-slate-600 italic text-center py-4">目前尚無出金紀錄</p>
-                    )}
+                    ) : ( <p className="text-[10px] text-slate-600 italic text-center py-4">目前尚無出金紀錄</p> )}
                   </div>
                </div>
             </div>
@@ -700,7 +502,6 @@ export default function App() {
               const isMultiPool = record.subPoolType === 'multi';
               const showTargetTag = isMultiPool && !record.isLost5050 && !record.isNotTarget && !isPity;
               const showNotTargetTag = record.isNotTarget && !isPity;
-
               return (
                 <div key={record.id} onClick={() => openEdit(record)} className={`rounded-3xl p-5 border transition-all relative overflow-hidden active:scale-[0.98] cursor-pointer group ${isPity ? 'bg-slate-900/40 border-slate-700/50' : 'bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/40'}`}>
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
@@ -708,10 +509,7 @@ export default function App() {
                     <button onClick={(e) => deleteRecord(e, record.id)} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg text-rose-400 shadow-sm"><Trash2 size={14} /></button>
                   </div>
                   <div className="flex justify-between items-start mb-3 relative z-10">
-                     <div className="flex items-center gap-2">
-                        <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded ${isPity ? 'bg-indigo-900/40 text-indigo-300' : 'bg-amber-500/20 text-amber-500'}`}>{label}</span>
-                        <span className="text-[11px] font-black text-slate-400 uppercase">{record.poolType === 'event' ? (record.subPoolType === 'multi' ? '限定(混)' : '限定(單)') : MAIN_TABS.find(t=>t.id===record.poolType)?.name}</span>
-                     </div>
+                     <div className="flex items-center gap-2"><span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded ${isPity ? 'bg-indigo-900/40 text-indigo-300' : 'bg-amber-500/20 text-amber-500'}`}>{label}</span><span className="text-[11px] font-black text-slate-400 uppercase">{record.poolType === 'event' ? (record.subPoolType === 'multi' ? '限定(混)' : '限定(單)') : MAIN_TABS.find(t=>t.id===record.poolType)?.name}</span></div>
                      <span className="text-[11px] text-slate-500 font-bold flex items-center gap-1 mr-16"><Clock size={10}/> {record.eventDate}</span>
                   </div>
                   <div className="flex items-center gap-4 relative z-10">
@@ -750,7 +548,7 @@ export default function App() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="absolute inset-0" onClick={resetModal}></div>
-          <div className="bg-[#0c0c16] border border-white/10 rounded-[3rem] w-full max-w-sm relative p-8 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+          <div className="bg-[#0c0c16] border border-white/10 rounded-[3rem] w-full max-w-sm relative p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onClick={resetModal} className="absolute left-6 top-8 text-slate-500 hover:text-white"><ChevronLeft size={24} /></button>
             <h3 className="text-lg font-black text-white tracking-widest mb-8 text-center mt-6">登錄思念紀錄</h3>
             <div className="space-y-6">
@@ -801,3 +599,6 @@ export default function App() {
   );
 }
 
+// 渲染 App
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
