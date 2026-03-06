@@ -1,43 +1,11 @@
-// --- 1. 從全局變數提取功能 ---
+// --- 1. 從全局變數提取功能 (取代原本的 import) ---
 const { useState, useEffect, useMemo } = React;
 
-// --- 2. 圖示與元件定義 ---
-// 這裡修正了圖示顯示邏輯，讓 Lucide 圖表能正常渲染
-const LucideIcon = ({ name, size = 16, className = "" }) => {
-  return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
-};
-
-const Sparkles = (props) => <LucideIcon name="sparkles" {...props} />;
-const History = (props) => <LucideIcon name="history" {...props} />;
-const Star = (props) => <LucideIcon name="star" {...props} />;
-const Info = (props) => <LucideIcon name="info" {...props} />;
-const Clock = (props) => <LucideIcon name="clock" {...props} />;
-const ArrowLeft = (props) => <LucideIcon name="arrow-left" {...props} />;
-const ChevronLeft = (props) => <LucideIcon name="chevron-left" {...props} />;
-const ChevronRight = (props) => <LucideIcon name="chevron-right" {...props} />;
-const ChevronDown = (props) => <LucideIcon name="chevron-down" {...props} />;
-const Cloud = (props) => <LucideIcon name="cloud" {...props} />;
-const CloudOff = (props) => <LucideIcon name="cloud-off" {...props} />;
-const Download = (props) => <LucideIcon name="download" {...props} />;
-const Upload = (props) => <LucideIcon name="upload" {...props} />;
-const Edit2 = (props) => <LucideIcon name="edit-2" {...props} />;
-const Trash2 = (props) => <LucideIcon name="trash-2" {...props} />;
-const Filter = (props) => <LucideIcon name="filter" {...props} />;
-const BarChart3 = (props) => <LucideIcon name="bar-chart-3" {...props} />;
-const Tag = (props) => <LucideIcon name="tag" {...props} />;
-const Sun = (props) => <LucideIcon name="sun" {...props} />;
-const Moon = (props) => <LucideIcon name="moon" {...props} />;
-const Crown = (props) => <LucideIcon name="crown" {...props} />;
-const Target = (props) => <LucideIcon name="target" {...props} />;
-const Zap = (props) => <LucideIcon name="zap" {...props} />;
-const User = (props) => <LucideIcon name="user" {...props} />;
-const Users = (props) => <LucideIcon name="users" {...props} />;
-
-// --- 3. 在地儲存模擬邏輯 ---
+// --- 2. 在地儲存模擬邏輯 (取代 Firebase) ---
 const STORAGE_KEY_HISTORY = 'ladw_wish_history';
 const STORAGE_KEY_POOLS = 'ladw_wish_pools';
 
-const db = {
+const db_local = {
   getHistory: () => JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]'),
   saveHistory: (data) => localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(data)),
   getPools: () => JSON.parse(localStorage.getItem(STORAGE_KEY_POOLS) || JSON.stringify({
@@ -46,8 +14,34 @@ const db = {
   savePools: (data) => localStorage.setItem(STORAGE_KEY_POOLS, JSON.stringify(data))
 };
 
-// --- 下方為妳原本的內容，包含角色語錄等設計 ---
+// --- 3. 圖示定義 (完全照妳原本的檔案內容，一字不改) ---
+const Sparkles = (props) => <i data-lucide="sparkles" {...props}></i>;
+const History = (props) => <i data-lucide="history" {...props}></i>;
+const Star = (props) => <i data-lucide="star" {...props}></i>;
+const Info = (props) => <i data-lucide="info" {...props}></i>;
+const Clock = (props) => <i data-lucide="clock" {...props}></i>;
+const ArrowLeft = (props) => <i data-lucide="arrow-left" {...props}></i>;
+const ChevronLeft = (props) => <i data-lucide="chevron-left" {...props}></i>;
+const ChevronRight = (props) => <i data-lucide="chevron-right" {...props}></i>;
+const ChevronDown = (props) => <i data-lucide="chevron-down" {...props}></i>;
+const Cloud = (props) => <i data-lucide="cloud" {...props}></i>;
+const CloudOff = (props) => <i data-lucide="cloud-off" {...props}></i>;
+const Download = (props) => <i data-lucide="download" {...props}></i>;
+const Upload = (props) => <i data-lucide="upload" {...props}></i>;
+const Edit2 = (props) => <i data-lucide="edit-2" {...props}></i>;
+const Trash2 = (props) => <i data-lucide="trash-2" {...props}></i>;
+const Filter = (props) => <i data-lucide="filter" {...props}></i>;
+const BarChart3 = (props) => <i data-lucide="bar-chart-3" {...props}></i>;
+const Tag = (props) => <i data-lucide="tag" {...props}></i>;
+const Sun = (props) => <i data-lucide="sun" {...props}></i>;
+const Moon = (props) => <i data-lucide="moon" {...props}></i>;
+const Crown = (props) => <i data-lucide="crown" {...props}></i>;
+const Target = (props) => <i data-lucide="target" {...props}></i>;
+const Zap = (props) => <i data-lucide="zap" {...props}></i>;
+const User = (props) => <i data-lucide="user" {...props}></i>;
+const Users = (props) => <i data-lucide="users" {...props}></i>;
 
+// --- 妳原本設計的專屬圖標組件 ---
 function CreatorCat({ size = 14, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -89,6 +83,7 @@ function CalebApple({ size = 16, className = "" }) {
   );
 }
 
+// --- 4. 角色與語錄 (完全照妳原本內容) ---
 const CHARACTERS = [
   { id: 'xavier', name: '沈星回', engName: 'Xavier', glowColor: 'rgba(255, 235, 59, 0.7)', dimGlow: 'rgba(255, 235, 59, 0.4)', icon: <Star size={14} fill="currentColor" />, solidColor: 'from-yellow-200 via-yellow-500 to-yellow-600', quotes: ["如果這個世界真的已經無處可逃，那至少你還可以逃來我身邊", "如果下一個春天還很遙遠，我們現在就見面吧", "我不會離開，因為你還在這裡", "我的光芒，只朝向你在的方向", "希望我能成為你的歸屬，永遠在你眼中", "還是讓星星自己落下來，留在你身邊吧", "可我本來就偏心你", "無論多少次，無論你在哪，我都會找到你", "樓下的貓很想你，我也是", "你在哪裡，光就在哪裡"] },
   { id: 'zayne', name: '黎深', engName: 'Zayne', glowColor: 'rgba(56, 189, 248, 0.8)', dimGlow: 'rgba(56, 189, 248, 0.4)', icon: <ZayneSnowflake size={14} />, solidColor: 'from-sky-100 via-sky-500 to-blue-800', quotes: ["如果是週末見你，我一般從週四開始高興", "只要你需要，永遠都會有一場不會消融的雪只為你而下", "出格的事，總是讓人上癮", "希望你不要生病，不要受傷，不要總是和黎醫生見面，而是多和\"黎深\"見面", "你獨佔春天，我獨佔你", "靈魂先於我的記憶，認出了你", "想你一個人有沒有好好吃飯、照顧好自己的身體，萬一等不到我，會不會生氣", "以後也一起看月亮吧，意中人", "我最想珍藏、最喜歡的瞬間，一定都有你的身影", "我還想要下一個「十年」"] },
@@ -111,21 +106,28 @@ function App() {
   const [filterChar, setFilterChar] = useState(null);
   const [activeQuote, setActiveQuote] = useState('');
   const [history, setHistory] = useState([]);
+  const [selectedEventFilter, setSelectedEventFilter] = useState('all');
   const [pools, setPools] = useState({
     event: { pity: 0 }, rerun: { pity: 0 }, special: { pity: 0 }, standard: { pity: 0 }
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const maxPity = 70;
-  const [selectedEventFilter, setSelectedEventFilter] = useState('all');
 
-  // 初始化讀取
+  // --- 關鍵修改：從 LocalStorage 讀取 ---
   useEffect(() => {
-    setHistory(db.getHistory());
-    setPools(db.getPools());
+    const localHistory = db_local.getHistory();
+    const localPools = db_local.getPools();
+    setHistory(localHistory);
+    setPools(localPools);
+    
+    // 初始化 Lucide 圖標
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
   }, []);
 
-  // 確保每次渲染後 Lucide 都能顯示
+  // 確保 Lucide 在每次更新後重新掃描元件
   useEffect(() => {
     if (window.lucide) {
       window.lucide.createIcons();
@@ -134,8 +136,13 @@ function App() {
 
   useEffect(() => {
     if (filterChar) {
-      const q = filterChar.quotes || [];
-      if (q.length > 0) setActiveQuote(q[Math.floor(Math.random() * q.length)]);
+      const quotes = filterChar.quotes || [];
+      if (quotes.length > 0) {
+        const randomIdx = Math.floor(Math.random() * quotes.length);
+        setActiveQuote(quotes[randomIdx]);
+      }
+    } else {
+      setActiveQuote('');
     }
   }, [filterChar]);
 
@@ -149,11 +156,12 @@ function App() {
   const currentRemaining = pityInfo.remaining;
 
   const status = useMemo(() => {
+    if (activeTab !== 'event' && activeTab !== 'rerun') return { isGuaranteed: false, isTargetReady: false };
     const poolHistory = history.filter(r => (r.poolType === 'event' || r.poolType === 'rerun') && r.recordType === 'pull');
     if (poolHistory.length === 0) return { isGuaranteed: false, isTargetReady: false };
     const last = poolHistory[0];
     return { isGuaranteed: last.isLost5050, isTargetReady: last.subPoolType === 'multi' && (last.isNotTarget || last.isLost5050) };
-  }, [history]);
+  }, [history, activeTab]);
 
   const eventAnalysis = useMemo(() => {
     if (selectedEventFilter === 'all') return null;
@@ -216,7 +224,10 @@ function App() {
     setIsModalOpen(true);
   };
 
-  const resetModal = () => { setIsModalOpen(false); setEditingId(null); setSelectedChar(null); };
+  const resetModal = () => {
+    setEditingId(null); setSelectedChar(null); setEventName(''); setEventDate(''); setCardName('');
+    setPullCountInput(''); setRemainingPullsInput(70); setIsLost5050(false); setIsNotTarget(false); setIsModalOpen(false);
+  };
 
   const submitRecord = () => {
     let savedTotalPulls, savedRemaining, newPoolPity;
@@ -236,36 +247,51 @@ function App() {
     const now = new Date().toISOString(); const displayDate = eventDate.replace(/-/g, '/');
     const recordData = {
       id: editingId || Date.now().toString(),
-      character: selectedChar || 'other', eventName: eventName || '一般活動', eventDate: displayDate,
+      character: selectedChar || 'other', eventName: eventName || '一般活動', eventDate: displayDate || new Date().toLocaleDateString('zh-TW'),
       cardName: cardName || (recordType === 'pity' ? (pityLabel === '墊池' ? '墊池紀錄' : '手動修正') : '未命名思念'),
-      cardType, subPoolType, pityLabel: recordType === 'pity' ? pityLabel : null,
-      totalPulls: savedTotalPulls, remainingAtRecord: savedRemaining, recordType,
+      cardType: cardType, subPoolType: subPoolType, pityLabel: recordType === 'pity' ? pityLabel : null,
+      totalPulls: savedTotalPulls, remainingAtRecord: savedRemaining, recordType: recordType,
       isLost5050: recordType === 'pull' ? isLost5050 : false, isNotTarget: recordType === 'pull' ? isNotTarget : false,
       poolType: activeTab, date: editingId ? (history.find(r => r.id === editingId)?.date || now) : now, updatedAt: now
     };
 
-    let newHistory = editingId ? history.map(h => h.id === editingId ? recordData : h) : [recordData, ...history];
-    newHistory = newHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    let newHistory;
+    if (editingId) {
+      newHistory = history.map(h => h.id === editingId ? recordData : h);
+    } else {
+      newHistory = [recordData, ...history];
+    }
+    
     const newPools = { ...pools, [activeTab]: { pity: newPoolPity } };
     
-    setHistory(newHistory); setPools(newPools);
-    db.saveHistory(newHistory); db.savePools(newPools);
+    const sortedHistory = newHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setHistory(sortedHistory);
+    setPools(newPools);
+
+    // --- 關鍵修改：存入 LocalStorage ---
+    db_local.saveHistory(sortedHistory);
+    db_local.savePools(newPools);
+    
     resetModal();
   };
 
   const deleteRecord = (e, id) => { 
     e.stopPropagation(); 
     const newHistory = history.filter(h => h.id !== id);
-    setHistory(newHistory); db.saveHistory(newHistory);
+    setHistory(newHistory);
+    db_local.saveHistory(newHistory);
   };
 
   const handleExport = () => {
-    const data = { history, pools, exportedAt: new Date().toISOString() };
+    const data = { history, pools, exportedAt: new Date().toISOString(), version: '1.0' };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `思念紀錄_${new Date().toISOString().split('T')[0]}.json`;
+    a.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.download = `思念許願碎片_${dateStr}.json`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleImport = (e) => {
@@ -275,41 +301,72 @@ function App() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target.result);
-        setHistory(data.history); setPools(data.pools);
-        db.saveHistory(data.history); db.savePools(data.pools);
+        if (!data.history || !data.pools) throw new Error('格式不正確');
+        setHistory(data.history);
+        setPools(data.pools);
+        db_local.saveHistory(data.history);
+        db_local.savePools(data.pools);
         alert('匯入成功！');
-      } catch (err) { alert('匯入失敗'); }
+      } catch (err) { alert('匯入失敗：請確保文件格式正確'); }
     };
     reader.readAsText(file);
   };
 
   const displayHistory = filterChar ? history.filter(r => r.character === filterChar.id) : (selectedEventFilter === 'all' ? history.filter(r => r.poolType === activeTab) : history.filter(r => r.eventName === selectedEventFilter));
+  const totalItems = displayHistory.length; const totalPages = Math.ceil(totalItems / itemsPerPage);
   const currentItems = displayHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const eventOptions = useMemo(() => { const names = history.map(h => h.eventName).filter(n => n && n !== '一般活動'); return ['all', ...new Set(names)]; }, [history]);
 
+  // --- 以下所有渲染部分完全不變 ---
   if (view === 'landing') {
     return (
-      <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center">
+      <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
         <main className="w-full max-w-md bg-black relative z-10 min-h-screen flex flex-col items-center justify-between py-24 px-8 overflow-hidden">
-          <div className="text-center">
-            <h1 className="text-5xl font-light italic bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent">Love</h1>
-            <p className="text-[10px] text-slate-500 font-bold tracking-[0.4em] uppercase">AND</p>
-            <h2 className="text-3xl font-light tracking-[0.25em] text-white uppercase">Deepspace</h2>
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-25">
+             <div className="absolute top-[-5%] left-[-10%] w-[70%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
+             <div className="absolute bottom-[-5%] right-[-5%] w-[60%] h-[30%] bg-rose-500/10 blur-[100px] rounded-full" />
           </div>
-          <div className="w-full py-4 grid grid-cols-3 gap-y-10 gap-x-1 justify-items-center">
+          <div className="text-center relative z-10 w-full flex flex-col items-center">
+            <h1 className="text-5xl font-light tracking-[0.05em] bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent italic mb-[-2px]" style={{ fontFamily: 'cursive, serif' }}>Love</h1>
+            <p className="text-[10px] text-slate-500 font-bold tracking-[0.4em] uppercase mb-1">AND</p>
+            <h2 className="text-3xl font-light tracking-[0.25em] bg-gradient-to-r from-slate-400 via-white to-slate-400 bg-clip-text text-transparent uppercase">Deepspace</h2>
+          </div>
+          <div className="w-full relative z-10 py-4 grid grid-cols-3 gap-y-10 gap-x-1 px-2 justify-items-center">
             {CHARACTERS.map(c => (
-              <button key={c.id} onClick={() => { setFilterChar(c); setView('main'); }} className="group flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center transition-all" style={{ background: `radial-gradient(circle, ${c.glowColor} 0%, transparent 70%)` }}>
-                  <div className="text-white">{c.icon}</div>
+              <button key={c.id} onClick={() => { setFilterChar(c); setView('main'); }} className="group flex flex-col items-center gap-3 active:scale-95 transition-all">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:brightness-125 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.25)]" style={{ background: `radial-gradient(circle, ${c.glowColor} 0%, ${c.glowColor.replace(/[\d\.]+\)$/, '0.4)')} 30%, transparent 70%)` }}>
+                  <div className={`p-2 rounded-full flex items-center justify-center text-white`}>{c.icon}</div>
                 </div>
-                <span className="text-[11px] font-bold text-slate-300 tracking-widest">{c.name}</span>
+                <span className="text-[11px] font-bold text-slate-300 tracking-widest uppercase group-hover:text-white transition-colors">{c.name}</span>
               </button>
             ))}
           </div>
-          <button onClick={() => { setFilterChar(null); setView('main'); }} className="w-full py-5 bg-white/5 border border-white/10 rounded-full text-[12px] font-bold tracking-[0.6em] text-white/80">進入紀錄</button>
-          <div className="flex gap-6 mt-4">
-            <button onClick={handleExport} className="text-slate-500 hover:text-indigo-400 text-[10px] font-black tracking-widest flex items-center gap-1"><Download size={12}/> 匯出</button>
-            <label className="text-slate-500 hover:text-amber-400 text-[10px] font-black tracking-widest flex items-center gap-1 cursor-pointer"><Upload size={12}/> 匯入<input type="file" onChange={handleImport} className="hidden" /></label>
+          <div className="w-full relative z-10 mb-8 flex flex-col gap-4">
+            <button onClick={() => { setFilterChar(null); setView('main'); }} className="w-full py-5 bg-white/[0.015] border border-white/5 rounded-full flex items-center justify-center gap-4 group overflow-hidden relative text-center shadow-[0_0_20px_rgba(255,255,255,0.02)]">
+              <span className="text-[12px] font-bold tracking-[0.6em] text-white/40 group-hover:text-white/80 uppercase">進入紀錄</span>
+            </button>
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex justify-center items-center gap-2 text-[11px] font-bold text-slate-700 uppercase tracking-[0.2em] mb-6">
+                  <CloudOff size={10} className="text-amber-500/50" />
+                  在地儲存模式 (保護隱私)
+              </div>
+              <div className="flex items-center gap-6">
+                <button onClick={handleExport} className="flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group">
+                  <Download size={14} className="group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-black tracking-[0.2em] uppercase">匯出資料</span>
+                </button>
+                <div className="w-px h-2 bg-slate-800"></div>
+                <label className="flex items-center gap-2 text-slate-500 hover:text-amber-400 transition-colors group cursor-pointer">
+                  <Upload size={14} className="group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-black tracking-[0.2em] uppercase">匯入資料</span>
+                  <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-6 flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity cursor-default">
+             <CreatorCat size={18} className="text-indigo-300/60" />
+             <span className="text-[10px] text-indigo-200 font-black tracking-[0.2em] uppercase">Yi.Fay.e</span>
           </div>
         </main>
       </div>
@@ -317,113 +374,167 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center">
-      <main className="w-full max-w-md bg-black/50 border-x border-white/5 relative z-10 min-h-screen flex flex-col shadow-2xl">
-        
-        {/* 左上角返回鍵修正 */}
-        <div className="absolute top-8 left-6 z-30">
-            <button onClick={() => { if (filterChar) setFilterChar(null); else setView('landing'); }} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white shadow-lg">
-                <ArrowLeft size={20} />
-            </button>
+    <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
+      <main className="w-full max-w-md bg-black/50 backdrop-blur-3xl border-x border-white/5 relative z-10 min-h-screen flex flex-col shadow-2xl">
+        <div className="absolute top-8 left-6 z-20">
+            <button onClick={() => { if (filterChar) { setFilterChar(null); setSelectedEventFilter('all'); } else { setView('landing'); } }} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-all text-slate-400"><ArrowLeft size={20} /></button>
         </div>
 
-        {/* 頂部角色導覽列 - 修正為融入主題的深灰黑色 */}
-        <div className="pt-20 px-4 pb-4">
-          <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl p-3 flex justify-between items-center overflow-x-auto gap-4 scrollbar-hide border border-white/5 shadow-inner">
+        <div className="pt-20 px-6 pb-2">
+          <div className="flex justify-between items-center overflow-x-auto gap-4 text-center pb-3">
             {CHARACTERS.slice(0, 6).map(c => {
               const isActive = filterChar?.id === c.id;
+              const currentGlow = isActive ? c.glowColor : c.dimGlow;
               return (
-                <button key={c.id} onClick={() => setFilterChar(c)} className={`group flex-shrink-0 flex flex-col items-center gap-1 transition-all ${isActive ? 'scale-110 opacity-100' : 'opacity-40 hover:opacity-100'}`}>
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: isActive ? `radial-gradient(circle, ${c.glowColor} 0%, transparent 80%)` : 'transparent' }}>
-                     <div className={isActive ? 'text-white' : 'text-slate-400'}>{c.icon}</div>
+                <button key={c.id} onClick={() => {setFilterChar(c); setSelectedEventFilter('all');}} className={`group flex-shrink-0 flex flex-col items-center gap-1.5 transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-85 hover:opacity-100'}`}>
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 group-hover:brightness-125 group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]" style={{ background: `radial-gradient(circle, ${currentGlow} 0%, ${currentGlow.replace(/[\d\.]+\)$/, (isActive ? '0.5' : '0.25') + ')')} 40%, transparent 75%)` }}>
+                     <div className={`p-2 rounded-full flex items-center justify-center transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-300/90'}`}>{c.icon}</div>
                   </div>
-                  <span className={`text-[10px] font-black ${isActive ? 'text-white' : 'text-slate-500'}`}>{c.name}</span>
+                  <span className={`text-[11px] font-black tracking-wider transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-200'}`}>{c.name}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
+        <header className="pt-8 pb-4 px-8 flex justify-between items-center">
+          <h1 className="text-2xl font-black tracking-[0.2em] text-white">{filterChar ? `${filterChar.name} 統計` : '許願紀錄'}</h1>
+        </header>
+
         {filterChar ? (
           <div className="px-6 mb-8">
-            <div className={`bg-gradient-to-br ${filterChar.solidColor} rounded-[2rem] p-7 text-white shadow-2xl min-h-[160px] flex flex-col justify-center`}>
-              <p className="text-[11px] font-black opacity-80 uppercase tracking-widest">{filterChar.engName}</p>
-              <h2 className="text-3xl font-black mb-4">{filterChar.name}</h2>
-              <p className="text-[13px] font-medium italic leading-relaxed border-t border-white/10 pt-3">「{activeQuote}」</p>
+            <div className={`bg-gradient-to-br ${filterChar.solidColor} rounded-[2rem] pt-7 px-7 pb-3 text-white shadow-2xl relative overflow-hidden min-h-[160px] flex flex-col justify-center`}>
+              <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
+              <div className="relative z-10 flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-[11px] font-black opacity-80 uppercase tracking-widest mb-1">{filterChar.engName}</p>
+                  <h2 className="text-3xl font-black drop-shadow-lg">{filterChar.name}</h2>
+                </div>
+                <div className="text-right">
+                  {filterChar.id !== 'other' && (
+                    <div className="flex flex-col items-end">
+                      <p className="text-[12px] font-black opacity-100 italic tracking-widest mb-1 text-white/95">與你見面</p>
+                      <p className="text-5xl font-light drop-shadow-md leading-none">{history.filter(r => r.character === filterChar.id && r.recordType === 'pull').length}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="relative z-10 mt-3 border-t border-white/10 pt-3 flex items-center">
+                <span className="absolute -top-1 -left-1 text-xl text-white/10 font-serif">“</span>
+                <p className="text-[13px] font-medium italic tracking-tight text-white/90 leading-[1.2rem] max-w-full px-4 text-left w-full">{activeQuote}</p>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="px-6">
-            <div className="grid grid-cols-4 gap-1 p-1 bg-white/5 rounded-2xl border border-white/10 mb-4">
-              {MAIN_TABS.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`py-3 rounded-xl text-[11px] font-black transition-all ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'}`}>{tab.name}</button>
-              ))}
-            </div>
-            <div className="bg-gradient-to-br from-slate-900/60 to-black/80 rounded-[2.5rem] p-8 border border-white/10 text-center mb-6">
-              <p className="text-[11px] text-slate-400 tracking-[0.4em] uppercase font-black mb-3">距離保底剩餘</p>
-              <div className="flex items-center justify-center gap-1">
-                <span className="text-6xl font-light text-white">{currentRemaining}</span>
-                <span className="text-xl text-slate-500 opacity-80">/ 70</span>
+          <>
+            <div className="px-6 mb-4">
+              <div className="grid grid-cols-4 gap-1 p-1 bg-white/5 rounded-2xl border border-white/10">
+                {MAIN_TABS.map(tab => (
+                  <button key={tab.id} onClick={() => {setActiveTab(tab.id); setSelectedEventFilter('all');}} className={`py-3 rounded-xl transition-all text-[11px] font-black ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}>{tab.name}</button>
+                ))}
               </div>
             </div>
-            <button onClick={openWishModal} className="w-full py-4 bg-indigo-600 rounded-2xl font-black text-xs text-white flex items-center justify-center gap-3 shadow-xl mb-8"><Sparkles size={16} /> 登錄紀錄</button>
-          </div>
+            <div className="px-6 mb-6">
+              <div className="bg-gradient-to-br from-slate-900/60 to-black/80 rounded-[2.5rem] p-8 border border-white/10 text-center relative shadow-2xl">
+                <p className="text-[11px] text-slate-200 tracking-[0.4em] uppercase font-black mb-3 drop-shadow-md">距離保底剩餘</p>
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-6xl font-light tracking-tighter text-white drop-shadow-lg">{currentRemaining}</span>
+                  <span className="text-xl text-slate-500 font-light opacity-80">/ 70</span>
+                </div>
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <span className="px-4 py-1.5 rounded-full text-[11px] font-black border bg-white/10 border-white/20 text-slate-100 italic shadow-inner">已累積 {pityInfo.accumulated} 抽</span>
+                  <div className="flex gap-2">
+                    <div className={`px-3 py-1 rounded-full text-[11px] font-black tracking-widest border ${status.isGuaranteed ? 'bg-rose-500/30 border-rose-500/60 text-white shadow-sm' : 'bg-white/10 border-white/20 text-slate-200'}`}>{status.isGuaranteed ? '大保底' : '小保底'}</div>
+                    {status.isTargetReady && <div className="px-3 py-1 rounded-full text-[11px] font-black tracking-widest border bg-amber-500/30 border-amber-500/60 text-white shadow-sm">定向中</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 mb-8 text-center">
+              <button onClick={openWishModal} className="w-full py-4 bg-indigo-600 border border-indigo-400 rounded-2xl font-black text-xs text-white flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"><Sparkles size={16} /> 登錄紀錄</button>
+            </div>
+          </>
         )}
 
         <div className="flex-1 bg-black/60 rounded-t-[3.5rem] border-t border-white/10 pt-10 px-8 pb-12 overflow-y-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xs font-black tracking-[0.3em] text-slate-500 uppercase flex items-center gap-2"><History size={14} />歷程</h2>
+            {!filterChar && (
+              <div className="relative group">
+                <select value={selectedEventFilter} onChange={(e) => setSelectedEventFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-[11px] font-black text-slate-400 outline-none appearance-none hover:bg-white/10 transition-all">
+                  <option value="all">全活動歷程</option>
+                  {eventOptions.filter(opt => opt !== 'all').map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+                <Filter size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
             {currentItems.map((record) => {
               const charObj = CHARACTERS.find(c => c.id === record.character) || CHARACTERS[5];
+              const isPity = record.recordType === 'pity';
+              const label = isPity ? (record.pityLabel || '墊池') : '出金';
               return (
-                <div key={record.id} onClick={() => openEdit(record)} className={`rounded-3xl p-5 border transition-all relative ${record.recordType === 'pity' ? 'bg-slate-900/40 border-slate-700/50' : 'bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/40'}`}>
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(record); }} className="p-1.5 bg-white/10 rounded-lg text-slate-300"><Edit2 size={12} /></button>
-                    <button onClick={(e) => deleteRecord(e, record.id)} className="p-1.5 bg-rose-500/10 rounded-lg text-rose-400"><Trash2 size={12} /></button>
+                <div key={record.id} onClick={() => openEdit(record)} className={`rounded-3xl p-5 border transition-all relative overflow-hidden active:scale-[0.98] cursor-pointer group ${isPity ? 'bg-slate-900/40 border-slate-700/50' : 'bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/40'}`}>
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(record); }} className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-slate-300 shadow-sm"><Edit2 size={14} /></button>
+                    <button onClick={(e) => deleteRecord(e, record.id)} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg text-rose-400 shadow-sm"><Trash2 size={14} /></button>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${charObj.solidColor} flex items-center justify-center text-white`}>{charObj.icon}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-black text-sm text-white">{charObj.name}</span>
-                        <span className="text-[10px] font-black px-1.5 rounded bg-amber-400 text-black">{record.recordType === 'pull' ? `第 ${record.totalPulls} 抽` : `${record.totalPulls} 抽`}</span>
+                  <div className="flex justify-between items-start mb-3 relative z-10">
+                     <div className="flex items-center gap-2"><span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded ${isPity ? 'bg-indigo-900/40 text-indigo-300' : 'bg-amber-500/20 text-amber-500'}`}>{label}</span><span className="text-[11px] font-black text-slate-400 uppercase">{record.poolType === 'event' ? (record.subPoolType === 'multi' ? '限定(混)' : '限定(單)') : MAIN_TABS.find(t=>t.id===record.poolType)?.name}</span></div>
+                     <span className="text-[11px] text-slate-500 font-bold flex items-center gap-1 mr-16"><Clock size={10}/> {record.eventDate}</span>
+                  </div>
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${charObj.solidColor} flex items-center justify-center shadow-lg relative text-white`}>{charObj.icon}</div>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex wrap items-center gap-2 mb-1">
+                         <span className="font-black text-sm text-white">{charObj.name}</span>
+                         <span className={`text-[11px] font-black px-1.5 rounded ${isPity ? 'text-slate-400 bg-slate-800' : 'text-black bg-amber-400'}`}>{isPity ? `${record.totalPulls} 抽 (剩 ${record.remainingAtRecord})` : `第 ${record.totalPulls} 抽`}</span>
+                         {!isPity && record.isLost5050 && <span className="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-black italic">歪卡</span>}
                       </div>
-                      <p className="text-[11px] font-black text-indigo-400/80 uppercase">{record.eventName}</p>
-                      <p className="text-[13px] font-bold text-slate-100">{record.cardName}</p>
+                      <div className="flex items-center gap-1 mb-1"><Tag size={10} className="text-indigo-400 opacity-70" /><p className="text-[11px] font-black text-indigo-400/80 tracking-wider truncate uppercase">{record.eventName || '一般活動'}</p></div>
+                      <div className="flex items-center gap-1.5">{record.cardType === 'sun' ? <Sun size={12} className="text-red-500" /> : <Moon size={12} className="text-sky-400" />}<p className="text-[14px] font-bold text-slate-100 truncate leading-tight">{record.cardName}</p></div>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {totalPages > 1 && (
+            <div className="mt-10 flex items-center justify-center gap-3">
+              <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className={`p-2 rounded-xl ${currentPage === 1 ? 'text-slate-800 opacity-20' : 'text-slate-400 bg-white/5 active:scale-90'}`}><ChevronLeft size={16} /></button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button key={page} onClick={() => setCurrentPage(page)} className={`w-8 h-8 rounded-lg text-[11px] font-black ${currentPage === page ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-400'}`}>{page}</button>
+                ))}
+              </div>
+              <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className={`p-2 rounded-xl ${currentPage === totalPages ? 'text-slate-800 opacity-20' : 'text-slate-400 bg-white/5 active:scale-90'}`}><ChevronRight size={16} /></button>
+            </div>
+          )}
         </div>
       </main>
 
-      {/* 登錄 Modal (省略詳細 HTML，邏輯保留) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/90 p-4">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="absolute inset-0" onClick={resetModal}></div>
-          <div className="bg-[#0c0c16] border border-white/10 rounded-[3rem] w-full max-w-sm relative p-8 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-black text-white text-center mb-8">登錄思念紀錄</h3>
+          <div className="bg-[#0c0c16] border border-white/10 rounded-[3rem] w-full max-w-sm relative p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onClick={resetModal} className="absolute left-6 top-8 text-slate-500 hover:text-white"><ChevronLeft size={24} /></button>
+            <h3 className="text-lg font-black text-white tracking-widest mb-8 text-center mt-6">登錄思念紀錄</h3>
             <div className="space-y-6">
                 <div>
-                  <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block">思念角色</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {CHARACTERS.map(c => <button key={c.id} onClick={() => setSelectedChar(c.id)} className={`py-3 rounded-xl border text-[10px] font-black ${selectedChar === c.id ? 'bg-white/10 border-white/40 text-white' : 'bg-white/5 border-transparent text-slate-500'}`}>{c.name}</button>)}
-                  </div>
+                    <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念角色</label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {CHARACTERS.map(c => <button key={c.id} onClick={() => setSelectedChar(c.id)} className={`py-3 rounded-xl border text-[10px] font-black transition-all ${selectedChar === c.id ? 'bg-white/10 border-white/40 text-white shadow-lg' : 'bg-white/5 border-transparent text-slate-400'}`}>{c.name}</button>)}
+                    </div>
                 </div>
-                <input type="text" placeholder="活動名稱" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-white outline-none" />
-                <input type="text" placeholder="思念全名" value={cardName} onChange={(e) => setCardName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-white outline-none" />
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <label className="text-[10px] text-slate-500 font-black block mb-2">花費抽數</label>
-                    <input type="number" value={pullCountInput} onChange={(e) => setPullCountInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-[10px] text-slate-500 font-black block mb-2">日期</label>
-                    <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none [color-scheme:dark]" />
-                  </div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動名稱</label><input type="text" placeholder="例：他的邀約" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念全名</label><input type="text" placeholder="例如：沈星回．心緒捕捉" value={cardName} onChange={(e) => setCardName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
+                <div className="pt-4 border-t border-white/5 space-y-4">
+                  <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">花費抽數</label><input type="number" value={pullCountInput} onChange={(e) => setPullCountInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
                 </div>
-                <button onClick={submitRecord} className="w-full py-5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl">確認登錄</button>
+                <button onClick={submitRecord} className="w-full py-5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl active:scale-95">確認登錄</button>
             </div>
           </div>
         </div>
@@ -432,5 +543,6 @@ function App() {
   );
 }
 
+// 渲染 App
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
