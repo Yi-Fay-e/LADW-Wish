@@ -350,8 +350,274 @@ function App() {
   // --- Main View (保持妳原本的完整 JSX 結構) ---
   return (
     <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
-      {/* 這裡接妳原本 Main View 的完整代碼 ... */}
-      {/* 由於字數限制，我確保邏輯部分已更新，UI 結構請沿用原本的內容 */}
+      // --- 以下是原本 Main View 的完整代碼 (已改為本地儲存邏輯) ---
+  return (
+    <div className="min-h-screen bg-[#050508] text-slate-200 font-sans flex justify-center overflow-x-hidden">
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { height: 3px; width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05); }
+      `}</style>
+      <main className="w-full max-w-md bg-black/50 backdrop-blur-3xl border-x border-white/5 relative z-10 min-h-screen flex flex-col shadow-2xl">
+        <div className="absolute top-8 left-6 z-20">
+            <button onClick={() => { if (filterChar) { setFilterChar(null); setSelectedEventFilter('all'); } else { setView('landing'); } }} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-all text-slate-400"><ArrowLeft size={20} /></button>
+        </div>
+
+        <div className="pt-20 px-6 pb-2">
+          <div className="flex justify-between items-center overflow-x-auto custom-scrollbar gap-4 text-center pb-3">
+            {CHARACTERS.slice(0, 6).map(c => {
+              const isActive = filterChar?.id === c.id;
+              const currentGlow = isActive ? c.glowColor : c.dimGlow;
+              return (
+                <button key={c.id} onClick={() => {setFilterChar(c); setSelectedEventFilter('all');}} className={`group flex-shrink-0 flex flex-col items-center gap-1.5 transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-85 hover:opacity-100'}`}>
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 group-hover:brightness-125 group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]" style={{ background: `radial-gradient(circle, ${currentGlow} 0%, ${currentGlow.replace(/[\d\.]+\)$/, (isActive ? '0.5' : '0.25') + ')')} 40%, transparent 75%)` }}>
+                     <div className={`p-2 rounded-full flex items-center justify-center transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-300/90'}`}>{c.icon}</div>
+                  </div>
+                  <span className={`text-[11px] font-black tracking-wider transition-colors duration-500 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-200'}`}>{c.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <header className="pt-8 pb-4 px-8 flex justify-between items-center">
+          <h1 className="text-2xl font-black tracking-[0.2em] text-white">{filterChar ? `${filterChar.name} 統計` : '許願紀錄'}</h1>
+        </header>
+
+        {filterChar ? (
+          <div className="px-6 mb-8">
+            <div className={`bg-gradient-to-br ${filterChar.solidColor} rounded-[2rem] pt-7 px-7 pb-3 text-white shadow-2xl relative overflow-hidden min-h-[160px] flex flex-col justify-center`}>
+              <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
+              <div className="relative z-10 flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-[11px] font-black opacity-80 uppercase tracking-widest mb-1">{filterChar.engName}</p>
+                  <h2 className="text-3xl font-black drop-shadow-lg">{filterChar.name}</h2>
+                </div>
+                <div className="text-right">
+                  {filterChar.id !== 'other' && (
+                    <div className="flex flex-col items-end">
+                      <p className="text-[12px] font-black opacity-100 italic tracking-widest mb-1 text-white/95">與你見面</p>
+                      <p className="text-5xl font-light drop-shadow-md leading-none">{history.filter(r => r.character === filterChar.id && r.recordType === 'pull').length}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="relative z-10 mt-3 border-t border-white/10 pt-3 flex items-center">
+                <span className="absolute -top-1 -left-1 text-xl text-white/10 font-serif">“</span>
+                <p className="text-[13px] font-medium italic tracking-tight text-white/90 leading-[1.2rem] max-w-full px-4 text-left w-full">
+                   {activeQuote}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="px-6 mb-4">
+              <div className="grid grid-cols-4 gap-1 p-1 bg-white/5 rounded-2xl border border-white/10">
+                {MAIN_TABS.map(tab => (
+                  <button key={tab.id} onClick={() => {setActiveTab(tab.id); setSelectedEventFilter('all');}} className={`py-3 rounded-xl transition-all text-[11px] font-black ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}>{tab.name}</button>
+                ))}
+              </div>
+            </div>
+            <div className="px-6 mb-6">
+              <div className="bg-gradient-to-br from-slate-900/60 to-black/80 rounded-[2.5rem] p-8 border border-white/10 text-center relative shadow-2xl">
+                <p className="text-[11px] text-slate-200 tracking-[0.4em] uppercase font-black mb-3 drop-shadow-md">距離保底剩餘</p>
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-6xl font-light tracking-tighter text-white drop-shadow-lg">{currentRemaining}</span>
+                  <span className="text-xl text-slate-500 font-light opacity-80">/ 70</span>
+                </div>
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <span className="px-4 py-1.5 rounded-full text-[11px] font-black border bg-white/10 border-white/20 text-slate-100 italic shadow-inner">已累積 {pityInfo.accumulated} 抽</span>
+                  <div className="flex gap-2">
+                    <div className={`px-3 py-1 rounded-full text-[11px] font-black tracking-widest border ${status.isGuaranteed ? 'bg-rose-500/30 border-rose-500/60 text-white shadow-sm' : 'bg-white/10 border-white/20 text-slate-200'}`}>{status.isGuaranteed ? '大保底' : '小保底'}</div>
+                    {status.isTargetReady && <div className="px-3 py-1 rounded-full text-[11px] font-black tracking-widest border bg-amber-500/30 border-amber-500/60 text-white shadow-sm">定向中</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 mb-8 text-center">
+              <button onClick={openWishModal} className="w-full py-4 bg-indigo-600 border border-indigo-400 rounded-2xl font-black text-xs text-white flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"><Sparkles size={16} /> 登錄紀錄</button>
+            </div>
+          </>
+        )}
+
+        <div className="flex-1 bg-black/60 rounded-t-[3.5rem] border-t border-white/10 pt-10 px-8 pb-12 overflow-y-auto custom-scrollbar">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xs font-black tracking-[0.3em] text-slate-500 uppercase flex items-center gap-2"><History size={14} />歷程</h2>
+            {!filterChar && (
+              <div className="relative group">
+                <select value={selectedEventFilter} onChange={(e) => setSelectedEventFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-[11px] font-black text-slate-400 outline-none appearance-none hover:bg-white/10 transition-all">
+                  <option value="all">全活動歷程</option>
+                  {eventOptions.filter(opt => opt !== 'all').map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+                <Filter size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+              </div>
+            )}
+          </div>
+
+          {eventAnalysis && !filterChar && (
+            <div className="mb-8 p-6 bg-[#131322] border border-white/10 rounded-[2rem] shadow-2xl relative overflow-hidden">
+               <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400"><BarChart3 size={18} /></div>
+                  <div>
+                    <h3 className="text-sm font-black text-white tracking-widest">許願紀錄統計</h3>
+                    <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">EVENT DATA ANALYSIS</p>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-3 gap-3 mb-8">
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
+                    <p className="text-[10px] font-black text-slate-500 mb-2">總抽數</p>
+                    <p className="text-2xl font-black text-white">{eventAnalysis.totalPulls}</p>
+                  </div>
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
+                    <p className="text-[10px] font-black text-slate-500 mb-2">出金</p>
+                    <p className="text-2xl font-black text-amber-500">{eventAnalysis.pullCount}</p>
+                  </div>
+                  <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center flex flex-col justify-center">
+                    <p className="text-[10px] font-black text-slate-500 mb-2">墊池</p>
+                    <p className="text-2xl font-black text-indigo-400">{eventAnalysis.pityCount}</p>
+                  </div>
+               </div>
+
+               <div>
+                  <div className="flex items-center gap-2 mb-4 px-1">
+                    <div className="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                    </div>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">出金分佈 (不計墊池)</p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {eventAnalysis.distribution.length > 0 ? (
+                      eventAnalysis.distribution.map((item, idx) => (
+                        <div key={item.id} className="bg-black/20 rounded-2xl px-5 py-4 flex items-center justify-between border border-white/5">
+                           <div className="flex items-center gap-3">
+                              <span className="text-[11px] font-black text-slate-700">#{eventAnalysis.distribution.length - idx}</span>
+                              <span className="text-[13px] font-black text-slate-200">{item.charName}</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                              <span className="bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black italic">累計第 {item.accumulated} 抽</span>
+                              <span className="text-amber-500 font-black text-[11px]">({item.cost} 抽)</span>
+                           </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[10px] text-slate-600 italic text-center py-4">目前尚無出金紀錄</p>
+                    )}
+                  </div>
+               </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {currentItems.map((record) => {
+              const charObj = CHARACTERS.find(c => c.id === record.character) || CHARACTERS[5];
+              const isPity = record.recordType === 'pity';
+              const label = isPity ? (record.pityLabel || '墊池') : '出金';
+              const isMultiPool = record.subPoolType === 'multi';
+              const showTargetTag = isMultiPool && !record.isLost5050 && !record.isNotTarget && !isPity;
+              const showNotTargetTag = record.isNotTarget && !isPity;
+
+              return (
+                <div key={record.id} onClick={() => openEdit(record)} className={`rounded-3xl p-5 border transition-all relative overflow-hidden active:scale-[0.98] cursor-pointer group ${isPity ? 'bg-slate-900/40 border-slate-700/50' : 'bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/40'}`}>
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(record); }} className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-slate-300 shadow-sm"><Edit2 size={14} /></button>
+                    <button onClick={(e) => deleteRecord(e, record.id)} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg text-rose-400 shadow-sm"><Trash2 size={14} /></button>
+                  </div>
+                  <div className="flex justify-between items-start mb-3 relative z-10">
+                     <div className="flex items-center gap-2">
+                        <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded ${isPity ? 'bg-indigo-900/40 text-indigo-300' : 'bg-amber-500/20 text-amber-500'}`}>{label}</span>
+                        <span className="text-[11px] font-black text-slate-400 uppercase">{record.poolType === 'event' ? (record.subPoolType === 'multi' ? '限定(混)' : '限定(單)') : MAIN_TABS.find(t=>t.id===record.poolType)?.name}</span>
+                     </div>
+                     <span className="text-[11px] text-slate-500 font-bold flex items-center gap-1 mr-16"><Clock size={10}/> {record.eventDate}</span>
+                  </div>
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${charObj.solidColor} flex items-center justify-center shadow-lg relative text-white`}>{charObj.icon}</div>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex wrap items-center gap-2 mb-1">
+                         <span className="font-black text-sm text-white">{charObj.name}</span>
+                         <span className={`text-[11px] font-black px-1.5 rounded ${isPity ? 'text-slate-400 bg-slate-800' : 'text-black bg-amber-400'}`}>{isPity ? `${record.totalPulls} 抽 (剩 ${record.remainingAtRecord})` : `第 ${record.totalPulls} 抽`}</span>
+                         {record.isLost5050 && <span className="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-black italic">歪卡</span>}
+                         {showNotTargetTag && <span className="text-[9px] bg-sky-500/10 text-sky-400 px-1.5 py-0.5 rounded font-black italic border border-sky-500/20">非定向</span>}
+                         {showTargetTag && <span className="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-black italic border border-amber-500/30 flex items-center gap-0.5"><Crown size={8} fill="currentColor" /> 定向</span>}
+                      </div>
+                      <div className="flex items-center gap-1 mb-1"><Tag size={10} className="text-indigo-400 opacity-70" /><p className="text-[11px] font-black text-indigo-400/80 tracking-wider truncate uppercase">{record.eventName || '一般活動'}</p></div>
+                      <div className="flex items-center gap-1.5">{record.cardType === 'sun' ? <Sun size={12} className="text-red-500" /> : <Moon size={12} className="text-sky-400" />}<p className="text-[14px] font-bold text-slate-100 truncate leading-tight">{record.cardName}</p></div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-10 flex items-center justify-center gap-3">
+              <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className={`p-2 rounded-xl ${currentPage === 1 ? 'text-slate-800 opacity-20' : 'text-slate-400 bg-white/5 active:scale-90'}`}><ChevronLeft size={16} /></button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button key={page} onClick={() => setCurrentPage(page)} className={`w-8 h-8 rounded-lg text-[11px] font-black ${currentPage === page ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-400'}`}>{page}</button>
+                ))}
+              </div>
+              <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className={`p-2 rounded-xl ${currentPage === totalPages ? 'text-slate-800 opacity-20' : 'text-slate-400 bg-white/5 active:scale-90'}`}><ChevronRight size={16} /></button>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/90 backdrop-blur-md p-4">
+          <div className="absolute inset-0" onClick={resetModal}></div>
+          <div className="bg-[#0c0c16] border border-white/10 rounded-[3rem] w-full max-w-sm relative p-8 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+            <button onClick={resetModal} className="absolute left-6 top-8 text-slate-500 hover:text-white"><ChevronLeft size={24} /></button>
+            <h3 className="text-lg font-black text-white tracking-widest mb-8 text-center mt-6">登錄思念紀錄</h3>
+            <div className="space-y-6">
+                {activeTab === 'event' && (
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-black uppercase mb-3 block tracking-widest text-center">限定池類型</label>
+                    <div className="grid grid-cols-2 gap-3 p-1 bg-white/5 rounded-2xl border border-white/10">
+                      <button onClick={() => setSubPoolType('single')} className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black ${subPoolType === 'single' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}><User size={12} /> 單人池</button>
+                      <button onClick={() => setSubPoolType('multi')} className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black ${subPoolType === 'multi' ? 'bg-indigo-600 text-white' : 'text-slate-500'}`}><Users size={12} /> 多人混池</button>
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <label className="text-[10px] text-slate-500 font-black uppercase mb-3 block tracking-widest text-center">紀錄性質</label>
+                  <div className="grid grid-cols-2 gap-3 p-1 bg-white/5 rounded-2xl">
+                    <button onClick={() => setRecordType('pull')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-black ${recordType === 'pull' ? 'bg-amber-500 text-black shadow-lg' : 'text-slate-500'}`}><Target size={14} /> 岀金</button>
+                    <button onClick={() => setRecordType('pity')} className={`flex items-center justify-center gap-2 py-3 rounded-xl text-[12px] font-black ${recordType === 'pity' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'}`}><Zap size={14} /> 墊池</button>
+                  </div>
+                </div>
+                <div>
+                    <label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念角色</label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {CHARACTERS.map(c => <button key={c.id} onClick={() => setSelectedChar(c.id)} className={`py-3 rounded-xl border text-[10px] font-black transition-all ${selectedChar === c.id ? 'bg-white/10 border-white/40 text-white shadow-lg' : 'bg-white/5 border-transparent text-slate-400'}`}>{c.name}</button>)}
+                    </div>
+                </div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動名稱</label><input type="text" list="existing-events" placeholder="例：他的邀約" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /><datalist id="existing-events">{eventOptions.filter(opt => opt !== 'all').map(opt => <option key={opt} value={opt} />)}</datalist></div>
+                <div className="flex gap-4 items-end">
+                  <div className="w-1/3 flex-shrink-0"><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">活動日期</label><input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-3 text-[11px] text-slate-200 focus:outline-none [color-scheme:dark]" /></div>
+                  <div className="flex-1 flex flex-col items-center"><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest text-center">類型</label><div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 w-fit"><button onClick={() => setCardType('sun')} className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 text-[10px] font-black ${cardType === 'sun' ? 'bg-amber-500 text-black shadow-lg' : 'text-slate-500'}`}><Sun size={12} /> 日卡</button><button onClick={() => setCardType('moon')} className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 text-[10px] font-black ${cardType === 'moon' ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-500'}`}><Moon size={12} /> 月卡</button></div></div>
+                </div>
+                <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">思念全名</label><input type="text" placeholder="例如：沈星回．心緒捕捉" value={cardName} onChange={(e) => setCardName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
+                {recordType === 'pull' && activeTab !== 'standard' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-rose-500/5 rounded-2xl border border-rose-500/20"><div><span className="text-[12px] font-black text-rose-300 block">歪卡？</span></div><button onClick={() => { setIsLost5050(!isLost5050); if(!isLost5050) setIsNotTarget(false); }} className={`px-4 py-1.5 rounded-full text-[11px] font-black ${isLost5050 ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}>{isLost5050 ? '是的' : '沒歪'}</button></div>
+                    {subPoolType === 'multi' && !isLost5050 && (<div className="flex items-center justify-between p-4 bg-sky-500/5 rounded-2xl border border-sky-500/20"><div><span className="text-[12px] font-black text-sky-400 block">非定向限定卡？</span></div><button onClick={() => setIsNotTarget(!isNotTarget)} className={`px-4 py-1.5 rounded-full text-[11px] font-black ${isNotTarget ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-400'}`}>{isNotTarget ? '是的' : '定向中'}</button></div>)}
+                  </div>
+                )}
+                <div className="pt-4 border-t border-white/5 space-y-4">
+                  <div><label className="text-[10px] text-slate-500 font-black uppercase mb-3 block tracking-widest text-center">選擇填寫方式</label><div className="relative"><select value={inputMode} onChange={(e) => setInputMode(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] font-black text-slate-200 outline-none appearance-none"><option value="cost">花費抽數</option><option value="remain">剩餘抽數</option></select><ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" /></div></div>
+                  <div><label className="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">{inputMode === 'cost' ? '花費抽數' : '剩餘抽數'}</label><input type="number" value={inputMode === 'cost' ? pullCountInput : remainingPullsInput} onChange={(e) => inputMode === 'cost' ? setPullCountInput(e.target.value) : setRemainingPullsInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] text-slate-200 focus:outline-none" /></div>
+                </div>
+                <button onClick={submitRecord} className="w-full py-5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl active:scale-95">確認登錄</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
